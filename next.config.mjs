@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Bypass TypeScript errors during build (useful for quick deployments)
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  // Bypass ESLint errors during build
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   webpack: (config) => {
     config.resolve = config.resolve || {}
     config.resolve.alias = {

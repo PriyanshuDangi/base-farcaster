@@ -38,10 +38,10 @@ export default function WalletProvider({
   cookies?: string | null;
 }) {
   // Initialize Reown AppKit (browser wallet modal) - only on client side
-  if (typeof window !== 'undefined' && !appKitInitialized) {
+  if (typeof window !== 'undefined' && !appKitInitialized && projectId) {
     createAppKit({
       adapters: [wagmiAdapter],
-      projectId,
+      projectId: projectId,
       networks: [baseSepolia],
       defaultNetwork: baseSepolia,
       metadata,
