@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import GameScene from '@/lib/phaser/scenes/GameScene';
 
 interface PhaserGameProps {

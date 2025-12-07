@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import { getSocket } from '@/lib/socket';
 import type { Socket } from 'socket.io-client';
 
@@ -944,6 +944,8 @@ export default class GameScene extends Phaser.Scene {
 
     // Send position update to server (throttled and only when actually moving)
     if (time - this.lastMoveUpdate > this.moveUpdateInterval) {
+      if (!playerSprite.body) return;
+      
       const currentPosition = {
         x: Math.round(playerSprite.x),
         y: Math.round(playerSprite.y),
