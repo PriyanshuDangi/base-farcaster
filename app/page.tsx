@@ -84,24 +84,24 @@ export default function Home() {
     (parseFloat(matchData.config.ENTRY_FEE) * 2).toFixed(4) : '0.002';
 
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-8">
-      <h1 className="text-4xl font-bold text-white mb-4">Shoot It</h1>
-      <p className="text-gray-400 mb-8">1v1 Aerial Combat on Base</p>
+    <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-2 sm:p-4 md:p-8">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 sm:mb-4 text-center">Shoot It</h1>
+      <p className="text-gray-400 mb-4 sm:mb-8 text-sm sm:text-base text-center px-2">1v1 Aerial Combat on Base</p>
       
       {!isInGame ? (
-        <div className="flex flex-col items-center space-y-4">
+        <div className="flex flex-col items-center space-y-3 sm:space-y-4 w-full max-w-md px-4">
           {/* Wallet status */}
-          <div className="bg-gray-800 px-6 py-3 rounded-lg">
+          <div className="bg-gray-800 px-4 sm:px-6 py-2 sm:py-3 rounded-lg w-full">
             {isConnected && address ? (
-              <p className="text-green-400">
+              <p className="text-green-400 text-sm sm:text-base text-center truncate">
                 Connected: {address.substring(0, 6)}...{address.substring(38)}
               </p>
             ) : (
               <button
                 onClick={() => setShowWallet(!showWallet)}
-                className="text-blue-400 hover:text-blue-300"
+                className="text-blue-400 hover:text-blue-300 text-sm sm:text-base w-full"
               >
-                Connect Wallet (Optional for testing)
+                Connect Wallet (Optional)
               </button>
             )}
           </div>
@@ -115,17 +115,17 @@ export default function Home() {
             playerData={playerData}
           />
 
-          <div className="bg-blue-900 border border-blue-600 px-4 py-3 rounded-lg max-w-md text-center">
-            <p className="text-blue-200 text-sm">
-              💡 <strong>Testing Mode:</strong> Deposits are currently disabled. 
-              The game is fully playable without blockchain transactions.
-              {!isConnected && " You can connect your wallet for future features."}
+          <div className="bg-blue-900 border border-blue-600 px-3 sm:px-4 py-2 sm:py-3 rounded-lg w-full text-center">
+            <p className="text-blue-200 text-xs sm:text-sm">
+              💡 <strong>Testing Mode:</strong> Deposits disabled. 
+              Game is fully playable without blockchain.
+              {!isConnected && " Connect wallet for future features."}
             </p>
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center space-y-4">
-          <div className="border-4 border-gray-700 rounded-lg overflow-hidden">
+        <div className="flex flex-col items-center space-y-3 sm:space-y-4 w-full px-2">
+          <div className="border-2 sm:border-4 border-gray-700 rounded-lg overflow-hidden w-full max-w-4xl">
             <PhaserGame matchData={matchData} />
           </div>
 
@@ -140,7 +140,7 @@ export default function Home() {
           
           <button
             onClick={handleReturnToLobby}
-            className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm sm:text-base"
           >
             Return to Lobby
           </button>

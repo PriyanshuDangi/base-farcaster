@@ -64,6 +64,11 @@ export default class GameScene extends Phaser.Scene {
     // Set background color (sky blue)
     this.cameras.main.setBackgroundColor(0x87CEEB);
 
+    // Get game dimensions for responsive scaling
+    const gameWidth = this.scale.width;
+    const gameHeight = this.scale.height;
+    console.log('🎮 Game dimensions:', gameWidth, 'x', gameHeight);
+
     // Initialize socket - get existing instance
     this.socket = getSocket();
     
@@ -117,18 +122,21 @@ export default class GameScene extends Phaser.Scene {
   private createPlatforms() {
     this.platforms = this.physics.add.staticGroup();
 
+    const gameWidth = this.scale.width;
+    const gameHeight = this.scale.height;
+
     // Ground platform (full width at bottom)
-    const ground = this.add.rectangle(400, 575, 800, 50, 0x2d4a3e);
+    const ground = this.add.rectangle(gameWidth / 2, gameHeight - 25, gameWidth, 50, 0x2d4a3e);
     this.platforms.add(ground);
 
-    // Floating platforms
-    const platform1 = this.add.rectangle(200, 400, 200, 20, 0x4a6b5e);
+    // Floating platforms (scaled to screen size)
+    const platform1 = this.add.rectangle(gameWidth * 0.25, gameHeight * 0.67, gameWidth * 0.25, 20, 0x4a6b5e);
     this.platforms.add(platform1);
 
-    const platform2 = this.add.rectangle(500, 300, 200, 20, 0x4a6b5e);
+    const platform2 = this.add.rectangle(gameWidth * 0.625, gameHeight * 0.5, gameWidth * 0.25, 20, 0x4a6b5e);
     this.platforms.add(platform2);
 
-    const platform3 = this.add.rectangle(600, 450, 150, 20, 0x4a6b5e);
+    const platform3 = this.add.rectangle(gameWidth * 0.75, gameHeight * 0.75, gameWidth * 0.19, 20, 0x4a6b5e);
     this.platforms.add(platform3);
 
     // Refresh static body bounds
@@ -143,8 +151,11 @@ export default class GameScene extends Phaser.Scene {
     playerGraphics.generateTexture('playerSprite', 32, 48);
     playerGraphics.destroy();
 
-    // Spawn at left side
-    const playerSprite = this.physics.add.sprite(100, 100, 'playerSprite');
+    const gameWidth = this.scale.width;
+    const gameHeight = this.scale.height;
+
+    // Spawn at left side (relative to screen size)
+    const playerSprite = this.physics.add.sprite(gameWidth * 0.125, gameHeight * 0.17, 'playerSprite');
     playerSprite.setCollideWorldBounds(true);
     playerSprite.body.setGravity(0, 300);
 
@@ -193,6 +204,14 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private createUI() {
+    const gameWidth = this.scale.width;
+    const gameHeight = this.scale.height;
+    
+    // Scale font sizes based on game width
+    const baseFontSize = Math.max(12, Math.floor(gameWidth / 44));
+    const timerFontSize = Math.max(20, Math.floor(gameWidth / 25));
+    const killFeedFontSize = Math.max(12, Math.floor(gameWidth / 50));
+    
     // HP Bar (player)
     this.hpBar = this.add.graphics();
     this.updateHpBar();
@@ -200,41 +219,43 @@ export default class GameScene extends Phaser.Scene {
     // Opponent HP Bar
     this.opponentHpBar = this.add.graphics();
 
-    // Ammo text
-    this.ammoText = this.add.text(680, 20, `Ammo: ${this.player!.ammo}/100`, {
-      fontSize: '18px',
+    // Ammo text (top right)
+    this.ammoText = this.add.text(gameWidth - 20, 20, `Ammo: ${this.player!.ammo}/100`, {
+      fontSize: `${baseFontSize}px`,
       color: '#ffffff',
       fontStyle: 'bold',
       stroke: '#000000',
-      strokeThickness: 3
+      strokeThickness: 2
     });
+    this.ammoText.setOrigin(1, 0);
 
-    // Kills text
-    this.killsText = this.add.text(680, 50, `Kills: ${this.player!.kills}`, {
-      fontSize: '18px',
+    // Kills text (below ammo)
+    this.killsText = this.add.text(gameWidth - 20, 20 + baseFontSize + 10, `Kills: ${this.player!.kills}`, {
+      fontSize: `${baseFontSize}px`,
       color: '#ffffff',
       fontStyle: 'bold',
       stroke: '#000000',
-      strokeThickness: 3
+      strokeThickness: 2
     });
+    this.killsText.setOrigin(1, 0);
 
     // Timer text (centered)
-    this.timerText = this.add.text(400, 20, '1:00', {
-      fontSize: '32px',
+    this.timerText = this.add.text(gameWidth / 2, 20, '1:00', {
+      fontSize: `${timerFontSize}px`,
       color: '#ffffff',
       fontStyle: 'bold',
       stroke: '#000000',
-      strokeThickness: 4
+      strokeThickness: 3
     });
     this.timerText.setOrigin(0.5, 0);
 
     // Kill feed text (top center, below timer)
-    this.killFeedText = this.add.text(400, 60, '', {
-      fontSize: '16px',
+    this.killFeedText = this.add.text(gameWidth / 2, 20 + timerFontSize + 10, '', {
+      fontSize: `${killFeedFontSize}px`,
       color: '#ffff00',
       fontStyle: 'bold',
       stroke: '#000000',
-      strokeThickness: 3
+      strokeThickness: 2
     });
     this.killFeedText.setOrigin(0.5, 0);
 
@@ -569,11 +590,14 @@ export default class GameScene extends Phaser.Scene {
     this.time.delayedCall(2000, () => {
       if (!this.player) return;
 
-      // Respawn at random position
+      const gameWidth = this.scale.width;
+      const gameHeight = this.scale.height;
+
+      // Respawn at random position (relative to screen size)
       const spawnPoints = [
-        { x: 100, y: 100 },
-        { x: 400, y: 100 },
-        { x: 700, y: 100 }
+        { x: gameWidth * 0.125, y: gameHeight * 0.17 },
+        { x: gameWidth * 0.5, y: gameHeight * 0.17 },
+        { x: gameWidth * 0.875, y: gameHeight * 0.17 }
       ];
       const spawn = Phaser.Utils.Array.GetRandom(spawnPoints);
       this.player.sprite.setPosition(spawn.x, spawn.y);
@@ -632,19 +656,23 @@ export default class GameScene extends Phaser.Scene {
       this.player.sprite.setVelocity(0, 0);
     }
     
+    const gameWidth = this.scale.width;
+    const gameHeight = this.scale.height;
+    
     // Create overlay background
-    const overlay = this.add.rectangle(400, 300, 800, 600, 0x000000, 0.8);
+    const overlay = this.add.rectangle(gameWidth / 2, gameHeight / 2, gameWidth, gameHeight, 0x000000, 0.8);
     
     // Determine if local player won
     const isWinner = data.winner === this.matchData?.playerAddress;
     
     // Result text
-    const resultText = this.add.text(400, 200, isWinner ? 'VICTORY!' : 'DEFEAT', {
-      fontSize: '72px',
+    const resultFontSize = Math.max(32, Math.floor(gameWidth / 11));
+    const resultText = this.add.text(gameWidth / 2, gameHeight * 0.33, isWinner ? 'VICTORY!' : 'DEFEAT', {
+      fontSize: `${resultFontSize}px`,
       color: isWinner ? '#00ff00' : '#ff0000',
       fontStyle: 'bold',
       stroke: '#000000',
-      strokeThickness: 6
+      strokeThickness: Math.max(3, Math.floor(resultFontSize / 12))
     });
     resultText.setOrigin(0.5);
 
@@ -658,25 +686,27 @@ export default class GameScene extends Phaser.Scene {
     }
 
     // Stats text
-    const statsText = this.add.text(400, 320, 
+    const statsFontSize = Math.max(14, Math.floor(gameWidth / 40));
+    const statsText = this.add.text(gameWidth / 2, gameHeight * 0.53, 
       `Your Stats:\nKills: ${myStats.kills} | Deaths: ${myStats.deaths}\n\nOpponent:\nKills: ${opponentStats.kills} | Deaths: ${opponentStats.deaths}`,
       {
-        fontSize: '20px',
+        fontSize: `${statsFontSize}px`,
         color: '#ffffff',
         align: 'center',
         stroke: '#000000',
-        strokeThickness: 3
+        strokeThickness: 2
       }
     );
     statsText.setOrigin(0.5);
 
     // Duration
+    const durationFontSize = Math.max(12, Math.floor(gameWidth / 50));
     const minutes = Math.floor(data.duration / 60000);
     const seconds = Math.floor((data.duration % 60000) / 1000);
-    const durationText = this.add.text(400, 460, 
+    const durationText = this.add.text(gameWidth / 2, gameHeight * 0.77, 
       `Match Duration: ${minutes}:${seconds.toString().padStart(2, '0')}`,
       {
-        fontSize: '16px',
+        fontSize: `${durationFontSize}px`,
         color: '#aaaaaa',
         stroke: '#000000',
         strokeThickness: 2
@@ -694,12 +724,16 @@ export default class GameScene extends Phaser.Scene {
   private showPreMatchCountdown() {
     this.controlsEnabled = false;
     
-    const countdownText = this.add.text(400, 300, '3', {
-      fontSize: '128px',
+    const gameWidth = this.scale.width;
+    const gameHeight = this.scale.height;
+    const countdownFontSize = Math.max(64, Math.floor(gameWidth / 6.25));
+    
+    const countdownText = this.add.text(gameWidth / 2, gameHeight / 2, '3', {
+      fontSize: `${countdownFontSize}px`,
       color: '#ffffff',
       fontStyle: 'bold',
       stroke: '#000000',
-      strokeThickness: 8
+      strokeThickness: Math.max(4, Math.floor(countdownFontSize / 16))
     });
     countdownText.setOrigin(0.5);
 
@@ -735,8 +769,11 @@ export default class GameScene extends Phaser.Scene {
     console.log('✅ Match started! Controls enabled:', this.controlsEnabled);
     console.log('🔌 Socket status at match start:', this.socket?.connected, 'id:', this.socket?.id);
     
-    // Create opponent sprite immediately with default position on right side
-    this.createOpponentSprite(700, 100);
+    const gameWidth = this.scale.width;
+    const gameHeight = this.scale.height;
+    
+    // Create opponent sprite immediately with default position on right side (relative to screen)
+    this.createOpponentSprite(gameWidth * 0.875, gameHeight * 0.17);
     
     // Send initial position update so opponent sees this player immediately
     if (this.socket?.connected && this.player) {
@@ -802,12 +839,16 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private showDisconnectMessage() {
-    const disconnectText = this.add.text(400, 300, 'Opponent Disconnected', {
-      fontSize: '48px',
+    const gameWidth = this.scale.width;
+    const gameHeight = this.scale.height;
+    const fontSize = Math.max(24, Math.floor(gameWidth / 16.67));
+    
+    const disconnectText = this.add.text(gameWidth / 2, gameHeight / 2, 'Opponent Disconnected', {
+      fontSize: `${fontSize}px`,
       color: '#ff0000',
       fontStyle: 'bold',
       stroke: '#000000',
-      strokeThickness: 6
+      strokeThickness: Math.max(3, Math.floor(fontSize / 8))
     });
     disconnectText.setOrigin(0.5);
 

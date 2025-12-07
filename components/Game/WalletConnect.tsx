@@ -16,9 +16,9 @@ export default function WalletConnect({ onClose }: WalletConnectProps) {
   }
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg border-2 border-gray-700 max-w-md">
-      <h3 className="text-white text-xl font-bold mb-4">Connect Wallet</h3>
-      <p className="text-gray-400 mb-4 text-sm">
+    <div className="bg-gray-800 p-4 sm:p-6 rounded-lg border-2 border-gray-700 max-w-md w-full mx-4">
+      <h3 className="text-white text-lg sm:text-xl font-bold mb-3 sm:mb-4">Connect Wallet</h3>
+      <p className="text-gray-400 mb-3 sm:mb-4 text-xs sm:text-sm">
         Connect your wallet to enable deposits and prize claiming (optional for testing)
       </p>
       
@@ -28,7 +28,7 @@ export default function WalletConnect({ onClose }: WalletConnectProps) {
             key={connector.id}
             onClick={() => connect({ connector })}
             disabled={isPending}
-            className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors"
+            className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors text-sm sm:text-base"
           >
             {isPending ? 'Connecting...' : `Connect with ${connector.name}`}
           </button>
@@ -38,7 +38,7 @@ export default function WalletConnect({ onClose }: WalletConnectProps) {
       {onClose && (
         <button
           onClick={onClose}
-          className="w-full mt-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+          className="w-full mt-3 sm:mt-4 px-3 sm:px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm sm:text-base"
         >
           Cancel
         </button>
