@@ -10,3 +10,4 @@ alwaysApply: true
 - Keep the codebase very clean and organized  
 - Avoid having files over 200–300 lines of code. Refactor at that point.
 - do not update any .env by yourself, always ask before updating .env
+-  do not make unnecessary md files

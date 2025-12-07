@@ -5,15 +5,26 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
+
+// Enable CORS for all routes
+app.use(cors({
+  origin: '*',  // Allow all origins for development
+  credentials: true
+}));
 app.use(express.json());
 
 const httpServer = createServer(app);
+
+// Socket.io with more permissive CORS for development
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
+    origin: '*',  // Allow all origins
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: ["*"]
+  },
+  transports: ['websocket', 'polling'],  // Allow both transports
+  allowEIO3: true  // Allow Engine.IO v3 compatibility
 });
 
 // Game state
@@ -86,13 +97,27 @@ io.on('connection', (socket) => {
       // Broadcast movement to opponent
       const opponentId = getOpponentId(match, socket.id);
       if (opponentId) {
-        io.to(opponentId).emit('opponent-move', data);
+        console.log('📡 Broadcasting opponent-move from:', socket.id.substring(0, 8), '-> to:', opponentId.substring(0, 8), 'pos:', data.x, data.y);
+        
+        // Check if opponent socket exists
+        const opponentSocket = io.sockets.sockets.get(opponentId);
+        if (opponentSocket) {
+          console.log('✅ Opponent socket found, emitting opponent-move');
+          io.to(opponentId).emit('opponent-move', data);
+        } else {
+          console.warn('❌ Opponent socket NOT found for ID:', opponentId);
+        }
+      } else {
+        console.warn('⚠️ No opponent ID found for player:', socket.id);
       }
+    } else {
+      console.warn('⚠️ No match found for player:', socket.id);
     }
   });
 
   // Player shoots
   socket.on('player-shoot', (data) => {
+    console.log('🔫 player-shoot received from:', socket.id);
     const match = findMatchByPlayer(socket.id);
     if (match) {
       const opponentId = getOpponentId(match, socket.id);
