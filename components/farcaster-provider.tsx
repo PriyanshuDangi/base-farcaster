@@ -32,14 +32,10 @@ export function FrameProvider({ children }: FrameProviderProps) {
     queryKey: ['farcaster-context'],
     queryFn: async () => {
       const context = await sdk.context
-      try {
-        await sdk.actions.ready()
-        return { context, isReady: true }
-      } catch (err) {
-        console.error('SDK initialization error:', err)
-      }
-      return { context, isReady: false }
+      await sdk.actions.ready()
+      return { context, isReady: true }
     },
+    retry: false,
   })
 
   const isReady = farcasterContextQuery.data?.isReady ?? false
