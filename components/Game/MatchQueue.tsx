@@ -36,10 +36,13 @@ export default function MatchQueue({ onMatchFound, playerData }: MatchQueueProps
   const [matchData, setMatchData] = useState<MatchFoundData | null>(null);
 
   useEffect(() => {
+    // Skip if running on server
+    if (typeof window === 'undefined') return;
+    
     const socketInstance = getSocket();
     setSocket(socketInstance);
     
-    console.log('MatchQueue: Socket instance:', socketInstance.id, 'Connected:', socketInstance.connected);
+    console.log('MatchQueue: Socket instance:', socketInstance?.id, 'Connected:', socketInstance?.connected);
 
     // Listen for waiting status
     socketInstance.on('waiting-for-opponent', (data: { position: number }) => {

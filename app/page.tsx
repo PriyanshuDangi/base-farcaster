@@ -55,17 +55,17 @@ export default function Home() {
 
   // Check for match result from Phaser game
   useEffect(() => {
-    if (isInGame) {
-      const checkResult = setInterval(() => {
-        const phaserGame = (window as any).phaserGame;
-        if (phaserGame?.matchResult) {
-          setMatchResult(phaserGame.matchResult);
-          clearInterval(checkResult);
-        }
-      }, 1000);
+    if (typeof window === 'undefined' || !isInGame) return;
+    
+    const checkResult = setInterval(() => {
+      const phaserGame = (window as any).phaserGame;
+      if (phaserGame?.matchResult) {
+        setMatchResult(phaserGame.matchResult);
+        clearInterval(checkResult);
+      }
+    }, 1000);
 
-      return () => clearInterval(checkResult);
-    }
+    return () => clearInterval(checkResult);
   }, [isInGame]);
 
   // Generate player data from wallet or test data

@@ -15,6 +15,9 @@ export default function PhaserGame({ matchData, onGameReady }: PhaserGameProps) 
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
   useEffect(() => {
+    // Skip if running on server
+    if (typeof window === 'undefined') return;
+    
     // Calculate responsive dimensions
     const calculateDimensions = () => {
       const maxWidth = Math.min(window.innerWidth - 32, 800); // 16px padding on each side

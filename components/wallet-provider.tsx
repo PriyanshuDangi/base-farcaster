@@ -18,7 +18,6 @@ if (!projectId) {
   throw new Error("Project ID is not defined");
 }
 
-
 // App metadata (required for AppKit modal)
 const metadata = {
   name: "Farcaster Wallet Example",
@@ -27,17 +26,8 @@ const metadata = {
   icons: ["https://avatars.githubusercontent.com/u/179229932"],
 };
 
-// Initialize Reown AppKit (browser wallet modal)
-createAppKit({
-  adapters: [wagmiAdapter],
-  projectId,
-  networks: [baseSepolia],
-  defaultNetwork: baseSepolia,
-  metadata,
-  features: {
-    analytics: true, // optional
-  },
-});
+// Initialize AppKit only once on client side
+let appKitInitialized = false;
 
 // Main Provider
 export default function WalletProvider({
@@ -47,6 +37,20 @@ export default function WalletProvider({
   children: ReactNode;
   cookies?: string | null;
 }) {
+  // Initialize Reown AppKit (browser wallet modal) - only on client side
+  if (typeof window !== 'undefined' && !appKitInitialized) {
+    createAppKit({
+      adapters: [wagmiAdapter],
+      projectId,
+      networks: [baseSepolia],
+      defaultNetwork: baseSepolia,
+      metadata,
+      features: {
+        analytics: true, // optional
+      },
+    });
+    appKitInitialized = true;
+  }
   // Initialize Farcaster MiniApp + Wagmi from cookies (session persistence)
   const initialState = cookieToInitialState(
     wagmiAdapter.wagmiConfig as Config,
