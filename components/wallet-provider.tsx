@@ -7,7 +7,7 @@ import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { baseSepolia } from "@reown/appkit/networks";
 import { cookieToInitialState, WagmiProvider, type Config } from "wagmi";
 import { farcasterMiniApp as miniAppConnector } from "@farcaster/miniapp-wagmi-connector";
-import { projectId, wagmiAdapter } from "@/config";
+import { projectId, getWagmiAdapter } from "@/config";
 import { APP_URL } from "@/lib/constants";
 
 // Create a Query Client for React Query
@@ -39,8 +39,9 @@ export default function WalletProvider({
 }) {
   // Initialize Reown AppKit (browser wallet modal) - only on client side
   if (typeof window !== 'undefined' && !appKitInitialized && projectId) {
+    const adapter = getWagmiAdapter();
     createAppKit({
-      adapters: [wagmiAdapter],
+      adapters: [adapter],
       projectId: projectId,
       networks: [baseSepolia],
       defaultNetwork: baseSepolia,
@@ -51,11 +52,20 @@ export default function WalletProvider({
     });
     appKitInitialized = true;
   }
+  
+  // Get wagmi adapter only on client side
+  const wagmiAdapter = typeof window !== 'undefined' ? getWagmiAdapter() : null;
+  
   // Initialize Farcaster MiniApp + Wagmi from cookies (session persistence)
-  const initialState = cookieToInitialState(
+  const initialState = wagmiAdapter ? cookieToInitialState(
     wagmiAdapter.wagmiConfig as Config,
     cookies ?? undefined
-  );
+  ) : undefined;
+
+  if (!wagmiAdapter) {
+    // SSR fallback - render children without providers
+    return <>{children}</>;
+  }
 
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig as Config} initialState={initialState}>

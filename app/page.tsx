@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic rendering to avoid SSR issues
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import MatchQueue from '@/components/Game/MatchQueue';
